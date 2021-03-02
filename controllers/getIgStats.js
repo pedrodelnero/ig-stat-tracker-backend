@@ -1,45 +1,57 @@
-import puppeteer from "puppeteer";
+import puppeteer from 'puppeteer';
 
 export const getIgStats = async (req, res) => {
   const { selectedHandles } = req.body;
-  console.log("START", selectedHandles);
 
-  const browser = await puppeteer.launch({ headless: true });
-  const page = await browser.newPage();
+  console.log('START', selectedHandles);
 
-  const results = []
+  const browser = await puppeteer.launch({ headless: false });
+  try {
+    if (selectedHandles.length < 1) throw new Error('No handles selected');
 
-  for (const item of selectedHandles) {
-    // console.log('000', item)
-    await page.goto(`https://www.instagram.com/${item.handle}/`);
-    
-    let userData = await page.evaluate(() => {
-      return window._sharedData.entry_data.ProfilePage[0].graphql.user;
-    });
-    
-    let likes = 0;
-    
-    for (let i = 0; i <= item.posts - 1; i++) {
-      likes +=
-      userData.edge_owner_to_timeline_media.edges[i].node.edge_liked_by.count;
+    const page = await browser.newPage();
+    // await page.goto('https://www.instagram.com/accounts/login/');
+    // await page.waitForSelector('input[name="username"]');
+    // await page.type('input[name="username"]', 'pdn2006');
+    // await page.type('input[name="password"]', 'miami1234');
+    // await page.click('button[type="submit"]');
+    // await page.waitForSelector('.HoLwm');
+
+    const results = [];
+
+    for (const item of selectedHandles) {
+      if (item.posts.length === 0 || item.posts === 0)
+        throw new Error('A user or users have 0 posts selected');
+
+      await page.goto(`https://www.instagram.com/${item.handle}/`);
+
+      let userData = await page.evaluate(
+        () => window._sharedData.entry_data.ProfilePage[0].graphql.user
+      );
+
+      let likes = 0;
+
+      for (let i = 0; i <= item.posts - 1; i++) {
+        likes +=
+          userData.edge_owner_to_timeline_media.edges[i].node.edge_liked_by
+            .count;
+      }
+      likes /= item.posts;
+
+      results.push({
+        // id: item.id,
+        handle: userData.username,
+        followers: userData.edge_followed_by.count,
+        posts: item.posts,
+        likes: likes,
+      });
     }
-    likes /= item.posts;
-    console.log('1', item.handle, likes)
-    
-    results.push({
-      username: userData.username,
-      followers: userData.edge_followed_by.count,
-      likes: likes,
-    })
-    
+    res.send(results);
+  } catch (err) {
+    console.error(`Err 1: ${err.message}`);
+    res.status(404).json({ message: err.message });
   }
-
-
-  browser.close()
-
-  res.send(results)
-  
-
+  browser.close();
 };
 
 /*

@@ -1,19 +1,36 @@
-import express from "express";
-import cors from "cors";
-import bodyParser from "body-parser";
-import dotenv from "dotenv";
+import express from 'express';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
 
-import routes from "./routes/routers.js";
-
-dotenv.config();
+import routes from './routes/routers.js';
 
 const port = process.env.PORT || 5000;
-
 const app = express();
-app.use(cors());
-app.use(bodyParser.json());
+app.use(
+  cors({
+    origin: ['http://localhost:3000'],
+    methods: ['GET', 'POST', 'DELETE', 'PUT'],
+    credentials: true,
+  })
+);
+app.use(express.json());
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use("/", routes);
+app.use(
+  session({
+    key: 'userId',
+    secret: 'subscribe',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      expires: 60 * 60 * 24,
+    },
+  })
+);
+
+app.use('/', routes);
 
 app.listen(port, () => console.log(`listening in port ${port}`));
