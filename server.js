@@ -22,11 +22,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
   session({
     key: 'userId',
-    secret: 'subscribe',
+    secret: process.env.EXPRESS_SESS_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-      expires: 60 * 60 * 24,
+      httpOnly: false,
+      expires: 60 * 60 * 8,
     },
   })
 );

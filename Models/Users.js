@@ -29,7 +29,10 @@ User.findByCredentials = async (username, password) => {
 
     if (!user) throw new Error('No account found with this username');
 
-    const isMatch = await bcrypt.compareSync(password, user.user_password);
+    const isMatch = await bcrypt.compareSync(
+      password,
+      user.dataValues.password
+    );
 
     if (!isMatch) throw new Error('Wrong password');
 

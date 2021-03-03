@@ -38,12 +38,15 @@ export const getIgStats = async (req, res) => {
       }
       likes /= item.posts;
 
+      let engRate = (likes / userData.edge_followed_by.count) * 100;
+
       results.push({
         // id: item.id,
         handle: userData.username,
         followers: userData.edge_followed_by.count,
         posts: item.posts,
         likes: likes,
+        engRate: engRate,
       });
     }
     res.send(results);
