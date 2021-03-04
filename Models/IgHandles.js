@@ -1,5 +1,7 @@
 import Sequelize from 'sequelize';
 
+import db from '../db/db.js';
+
 const { DataTypes } = Sequelize;
 
 const IgHandle = db.define('ig_handles', {

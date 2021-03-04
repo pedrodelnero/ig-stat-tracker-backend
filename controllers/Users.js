@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 import User from '../Models/Users.js';
 
@@ -20,17 +21,19 @@ export const createUser = async (req, res) => {
         password: bcrypt.hashSync(password, 8),
       });
 
-      req.session.user = newUser.dataValues.id;
+      const token = jwt.sign(
+        { id: newUser.dataValues.id },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: '8h',
+        }
+      );
 
-      console.log('sess', req.session.user);
-      // const token = jwt.sign(newUser.username, process.env.JWT_SECRET, {
-      //   expiresIn: '24h',
-      // });
-      res.status(201).send({ message: 'Account created' });
+      res.status(201).send({ message: 'Account created', token });
     }
-  } catch (error) {
-    console.log(`Error 1 ${error}`);
-    res.status(400).send(error.message);
+  } catch (err) {
+    console.log(`Error Create User ${err}`);
+    res.status(400).send(err.message);
   }
 };
 
@@ -45,12 +48,26 @@ export const loginUser = async (req, res) => {
     if (!user) {
       throw new Error('No account found');
     } else {
-      req.session.user = user.dataValues.id;
-      console.log('Log');
-      res.status(201).send({ message: 'Logged in' });
+      const token = jwt.sign(
+        { id: user.dataValues.id },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: '8h',
+        }
+      );
+
+      res.status(201).send({ message: 'Logged in', token });
     }
-  } catch (error) {
-    console.log(`Error 1 ${error}`);
-    res.status(400).send(error.message);
+  } catch (err) {
+    console.log(`Error 1 ${err}`);
+    res.status(400).send(err.message);
+  }
+};
+
+export const logOut = async (req, res) => {
+  try {
+    res.status(200).send('Logged out');
+  } catch (err) {
+    res.status(500).send(err.message);
   }
 };

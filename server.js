@@ -11,7 +11,7 @@ const app = express();
 app.use(
   cors({
     origin: ['http://localhost:3000'],
-    methods: ['GET', 'POST', 'DELETE', 'PUT'],
+    methods: ['GET', 'POST', 'DELETE', 'PATCH'],
     credentials: true,
   })
 );
@@ -19,18 +19,18 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(
-  session({
-    key: 'userId',
-    secret: process.env.EXPRESS_SESS_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: false,
-      expires: 60 * 60 * 8,
-    },
-  })
-);
+// app.use(
+//   session({
+//     key: 'userId',
+//     secret: process.env.EXPRESS_SESS_SECRET,
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: {
+//       httpOnly: false,
+//       expires: 60 * 60 * 8 * 1000,
+//     },
+//   })
+// );
 
 app.use('/', routes);
 

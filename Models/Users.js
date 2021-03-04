@@ -37,8 +37,8 @@ User.findByCredentials = async (username, password) => {
     if (!isMatch) throw new Error('Wrong password');
 
     return user;
-  } catch (error) {
-    throw new Error(error.message);
+  } catch (err) {
+    throw new Error(err.message);
   }
 };
 
